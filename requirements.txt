@@ -1,0 +1,19 @@
+# --- PyTorch (GPU - CUDA 12.1) ---
+--index-url https://download.pytorch.org/whl/cu121
+torch
+torchvision
+torchaudio
+
+# --- Transformers (Hugging Face) ---
+transformers
+tokenizers
+sentencepiece
+
+# --- Data Handling & Preprocessing ---
+pandas
+scikit-learn
+Pillow
+numpy
+
+# --- Utilities ---
+tqdm
