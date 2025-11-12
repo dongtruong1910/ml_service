@@ -4,8 +4,8 @@ from sklearn.model_selection import StratifiedShuffleSplit
 import json
 
 ### CẤU HÌNH ###
-RAW_CSV_NAME = 'postfinal.csv'  # !!! THAY TÊN FILE CSV CỦA BẠN VÀO ĐÂY
-LABEL_COLUMN = 'label'  # !!! THAY TÊN CỘT NHÃN CỦA BẠN VÀO ĐÂY
+RAW_CSV_NAME = 'postfinal.csv'  # !!! TÊN FILE CSV
+LABEL_COLUMN = 'label'  # !!! TÊN CỘT NHÃN
 
 TRAIN_SIZE = 0.7  # 70% cho tập train
 VAL_SIZE = 0.15  # 15% cho tập validation
@@ -19,7 +19,7 @@ RAW_DATA_DIR = os.path.join(BASE_DIR, 'data', 'raw')
 SPLITS_DIR = os.path.join(BASE_DIR, 'data', 'splits')
 PROCESSED_DIR = os.path.join(BASE_DIR, 'data', 'processed')  # Thư mục để lưu bản đồ nhãn
 
-# Tạo các thư mục nếu chúng chưa tồn tại
+# Tạo các thư mục
 os.makedirs(SPLITS_DIR, exist_ok=True)
 os.makedirs(PROCESSED_DIR, exist_ok=True)
 
@@ -65,22 +65,21 @@ def get_labels_from_string(label_str):
     return labels
 
 
-# --- Quét toàn bộ dataset để tìm tất cả nhãn duy nhất ---
+# --- tìm tất cả nhãn duy nhất ---
 for label_str in df[LABEL_COLUMN]:
     labels = get_labels_from_string(label_str)
     all_labels_set.update(labels)  # Thêm tất cả nhãn tìm được vào set
 
-# Chuyển set thành list và sắp xếp lại để đảm bảo thứ tự
+# Chuyển set thành list và sắp xếp
 all_labels_list = sorted(list(all_labels_set))
 
 # --- Tạo bản đồ (mapping) từ nhãn sang ID ---
-# Ví dụ: {'game': 0, 'kinh tế - xã hội': 1, 'thể thao': 2, 'bóng chuyền': 3, ...}
 labels_map = {label: i for i, label in enumerate(all_labels_list)}
 num_classes = len(all_labels_list)
 
 print(f"Tìm thấy {num_classes} nhãn duy nhất.")
 
-# --- Lưu bản đồ này lại để dùng cho Bước 4 (Tạo Dataset) ---
+# --- Lưu bản đồ  ---
 map_path = os.path.join(PROCESSED_DIR, 'labels_map.json')
 with open(map_path, 'w', encoding='utf-8') as f:
     json.dump(labels_map, f, ensure_ascii=False, indent=4)
@@ -89,7 +88,7 @@ print(f"Đã lưu bản đồ nhãn (labels_map.json) vào: {PROCESSED_DIR}")
 print("-" * 30)
 
 
-# 4. TẠO CỘT 'main_label' ĐỂ CHIA (Stratify)
+# 4. TẠO CỘT 'main_label' ĐỂ CHIA DỮ LIỆU
 # Lấy nhãn đầu tiên làm "nhãn chính"
 def get_main_label(label_str):
     labels = get_labels_from_string(label_str)
@@ -113,7 +112,7 @@ if not (TRAIN_SIZE + VAL_SIZE + TEST_SIZE) == 1.0:
     print("LỖI: Tổng tỷ lệ (TRAIN + VAL + TEST) phải bằng 1.0")
     exit()
 
-# Chia lần 1: Tách tập Train (70%) ra khỏi (Val + Test) (30%)
+# Tách tập Train (70%) ra khỏi (Val + Test) (30%)
 split_train_temp = StratifiedShuffleSplit(n_splits=1, test_size=(1.0 - TRAIN_SIZE), random_state=RANDOM_STATE)
 
 for train_index, temp_index in split_train_temp.split(df, df['main_label']):
@@ -122,7 +121,7 @@ for train_index, temp_index in split_train_temp.split(df, df['main_label']):
 
 print(f"Đã chia tập Train: {len(train_set)} mẫu")
 
-# Chia lần 2: Tách tập Val (15%) và Test (15%) từ tập temp (30%)
+# Tách tập Val (15%) và Test (15%) từ tập temp (30%)
 val_test_ratio = TEST_SIZE / (VAL_SIZE + TEST_SIZE)
 split_val_test = StratifiedShuffleSplit(n_splits=1, test_size=val_test_ratio, random_state=RANDOM_STATE)
 
@@ -135,7 +134,6 @@ print(f"Đã chia tập Test: {len(test_set)} mẫu")
 print("-" * 30)
 
 # 6. LƯU KẾT QUẢ
-# Bỏ cột 'main_label' tạm thời đi trước khi lưu
 train_set = train_set.drop(columns=['main_label'])
 val_set = val_set.drop(columns=['main_label'])
 test_set = test_set.drop(columns=['main_label'])

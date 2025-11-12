@@ -17,3 +17,8 @@ numpy
 
 # --- Utilities ---
 tqdm
+
+# --- for Image Morphology ---
+scipy
+
+matplotlib

@@ -2,7 +2,7 @@ import os
 import pandas as pd
 
 ### CẤU HÌNH ###
-RAW_CSV_NAME = 'postfinal.csv'  # Tên file CSV gốc của bạn (từ ảnh 1)
+RAW_CSV_NAME = 'postfinal.csv'  # file CSV
 IMAGE_COLUMN = 'image_path'  # Tên cột chứa đường dẫn ảnh
 ##################
 
